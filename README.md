@@ -8,6 +8,31 @@
 
 > **A production-grade, research-backed algorithmic trading system combining statistical arbitrage, AI-powered decision making, and institutional-grade risk management for cryptocurrency futures markets.**
 
+---
+
+## ⚠️ **EDUCATIONAL & RESEARCH PURPOSES ONLY - NOT FINANCIAL ADVICE**
+
+**🚨 CRITICAL DISCLAIMER 🚨**
+
+**THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL AND RESEARCH PURPOSES ONLY. THIS IS NOT FINANCIAL ADVICE.**
+
+- **NOT a recommendation** to buy, sell, or trade any financial instrument
+- **NOT investment advice** - Do your own research and consult licensed financial advisors
+- **NOT suitable for real trading** without extensive testing and professional guidance
+- **HIGH RISK**: Cryptocurrency trading carries substantial risk of loss
+- **NO WARRANTIES**: The authors assume NO responsibility for financial losses
+- **USE AT YOUR OWN RISK**: Only use capital you can afford to lose entirely
+
+**This project is a technical demonstration of algorithmic trading concepts and AI integration. It should be used ONLY for:**
+- Academic research and learning
+- Software development portfolio demonstration
+- Understanding statistical arbitrage concepts
+- Exploring multi-agent AI architectures
+
+**Before ANY live trading, consult with licensed financial professionals and fully understand the risks involved.**
+
+---
+
 ## 🎯 Key Highlights
 
 - **🧠 Multi-Agent AI Architecture**: Orchestrated decision-making system powered by Google Gemini 2.5 Flash
