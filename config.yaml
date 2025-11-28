@@ -1,0 +1,207 @@
+trading:
+  # Trading pairs to monitor and trade
+  pairs:
+    # Core Pairs (BTC/ETH based)
+    - symbol_a: "BTCUSDT"
+      symbol_b: "ETHUSDT"
+      enabled: true
+      reference: "BTC"
+
+    - symbol_a: "BTCUSDT"
+      symbol_b: "LTCUSDT"
+      enabled: true
+      reference: "BTC"
+
+    - symbol_a: "BTCUSDT"
+      symbol_b: "XRPUSDT"
+      enabled: true
+      reference: "BTC"
+
+    - symbol_a: "BTCUSDT"
+      symbol_b: "BCHUSDT"
+      enabled: true
+      reference: "BTC"
+
+    # L1 Ecosystem Pairs
+    - symbol_a: "ETHUSDT"
+      symbol_b: "SOLUSDT"
+      enabled: true
+      reference: "ETH"
+
+    - symbol_a: "SOLUSDT"
+      symbol_b: "AVAXUSDT"
+      enabled: true
+      reference: "SOL"
+
+    # DeFi Blue Chips
+    - symbol_a: "LINKUSDT"
+      symbol_b: "UNIUSDT"
+      enabled: true
+      reference: "LINK"
+
+    # Interoperability
+    - symbol_a: "DOTUSDT"
+      symbol_b: "ATOMUSDT"
+      enabled: true
+      reference: "DOT"
+
+    # Layer 2s
+    - symbol_a: "MATICUSDT"
+      symbol_b: "ARBUSDT"
+      enabled: true
+      reference: "MATIC"
+
+    # Meme/Retail
+    - symbol_a: "LTCUSDT"
+      symbol_b: "DOGEUSDT"
+      enabled: true
+      reference: "LTC"
+
+  # Position sizing
+  position:
+    base_size_usd: 500  # REDUCED: Smaller positions for tighter stops and commission efficiency
+    max_leverage: 3
+    use_leverage: false
+
+  # Risk management
+  risk:
+    max_position_size_usd: 1000  # REDUCED: Max $1000 per position
+    max_positions_per_pair: 1
+    max_total_positions: 10  # REDUCED: Focus on quality over quantity
+    daily_loss_limit_usd: 100  # FIXED: Realistic limit (was 1M for phantom loss bug)
+    position_stop_loss_percent: 3  # TIGHTENED: 3% stop loss
+
+  # Order execution
+  execution:
+    order_type: "Limit"  # Limit or Market
+    price_offset_percent: 0.05  # For limit orders
+    max_slippage_percent: 0.1
+    timeout_seconds: 30
+
+strategy:
+  # Statistical parameters
+  cointegration:
+    method: "engle_granger"  # engle_granger, johansen, or kss
+    lookback_period_minutes: 1440  # 24 hours
+    rolling_window_minutes: 120
+    pvalue_threshold: 0.05
+    min_half_life: 60  # minimum half-life in minutes
+    max_half_life: 1440  # maximum half-life in minutes
+
+  zscore:
+    entry_threshold: 1.8  # OPTIMIZED: Balanced for consistent signal generation
+    exit_threshold: 0.4   # Exit when mean reversion occurs
+    stop_loss_threshold: 3.5  # Tighter stop to limit losses
+    lookback_period_minutes: 480  # 8 hours for z-score calculation (more responsive)
+
+  hedge_ratio:
+    calculation_method: "ols"  # ols or kalman
+    update_interval_minutes: 240
+    min_r_squared: 0.7  # minimum R² for valid hedge ratio
+
+  signals:
+    min_cointegration_confidence: 0.95
+    require_sentiment_confirmation: false  # DISABLED: Gemini API quota exhausted
+    sentiment_threshold: 0.3  # -1 to 1, positive is bullish
+    max_holding_period_hours: 2  # Max 2 hours (but min 5min enforced in risk_agent.py)
+
+agents:
+  trading:
+    enabled: true
+    interval_seconds: 1
+    log_level: "INFO"
+  quant_agent:
+    update_interval_seconds: 60
+    enable_dynamic_thresholds: true
+
+  sentiment_agent:
+    enabled: false  # DISABLED: Gemini API quota exhausted (1,764 errors)
+    model: "gemini-2.5-flash-preview-05-20"
+    enable_google_search: false
+    update_interval_seconds: 900  # 15 minutes
+    news_sources:
+      - "coindesk.com"
+      - "cointelegraph.com"
+      - "bloomberg.com/crypto"
+    analysis_depth: "comprehensive"  # quick, standard, comprehensive
+    event_impact_threshold: 0.5
+
+  risk_agent:
+    check_interval_seconds: 30
+    enable_dynamic_stops: true
+    drawdown_pause_threshold: 0.15  # pause trading at 15% drawdown
+
+  orchestrator:
+    decision_interval_seconds: 60
+    min_agent_consensus: 2  # minimum agents that must agree
+    enable_override: true
+    override_conditions:
+      - "major_market_event"
+      - "cointegration_breakdown"
+      - "extreme_volatility"
+
+data:
+  # Historical data collection
+  historical:
+    initial_lookback_days: 90
+    update_on_startup: true
+
+  # Real-time data
+  realtime:
+    websocket_reconnect_attempts: 5
+    websocket_ping_interval: 20
+    data_buffer_size: 1000
+
+  # Data storage
+  storage:
+    store_tick_data: true
+    store_1min_candles: true
+    store_trades: true
+    retention_days: 365
+
+monitoring:
+  metrics:
+    - "latency"
+    - "pnl"
+    - "win_rate"
+    - "sharpe_ratio"
+    - "max_drawdown"
+    - "number_of_trades"
+    - "average_trade_duration"
+
+  performance_targets:
+    sharpe_ratio: 1.5
+    win_rate: 0.55
+    max_drawdown: 0.20
+    average_latency_ms: 100
+
+  alerts:
+    enable_telegram: false
+    enable_email: false
+    enable_discord: false
+    alert_on:
+      - "trade_opened"
+      - "trade_closed"
+      - "stop_loss_hit"
+      - "daily_loss_limit_reached"
+      - "cointegration_breakdown"
+      - "system_error"
+      - "high_latency"
+
+backtesting:
+  enabled: true
+  start_date: "2024-01-01"
+  end_date: "2024-11-26"
+  initial_capital: 10000
+  commission_rate: 0.0006  # 0.06% Bybit taker fee
+  slippage_model: "fixed"  # fixed or variable
+  slippage_percent: 0.05
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "json"
+  outputs:
+    - "console"
+    - "file"
+  rotation: "daily"
+  retention_days: 30
